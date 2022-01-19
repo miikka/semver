@@ -1,14 +1,12 @@
 # semver
 
-A Clojure library designed to ... well, that part is up to you.
+**Status:** Experiment, not usable. This is a playground project for me!
 
-## Usage
-
-FIXME
+Clojure library for parsing and evaluating [semver](https://github.com/npm/node-semver) ranges.
 
 ## License
 
-Copyright © 2022 FIXME
+Copyright © 2022 Miikka Koskinen.
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at
