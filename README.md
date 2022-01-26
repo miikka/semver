@@ -17,6 +17,21 @@ which takes a version string and a semver range string and returns true if the v
 (semver/satisfies? "2.0.0" "^1.2.3") ; => false
 ```
 
+## To do list
+
+For the first release:
+
+- [ ] Support hyphen ranges `1.2.3 - 1.2.4`
+- [ ] Support X ranges `1.2.X`
+- [ ] Support tilde ranges `~1.2.3`
+- [ ] Support pre-release versions `1.2.3-alpha1`
+- [ ] Set up a CI job for running tests
+- [ ] Support ClojureScript
+
+Possibly later:
+
+- [ ] Support comparing and/or sorting releases
+
 ## Development
 
 * We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit messages.
