@@ -17,6 +17,11 @@ which takes a version string and a semver range string and returns true if the v
 (semver/satisfies? "2.0.0" "^1.2.3") ; => false
 ```
 
+## Development
+
+* We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit messages.
+* There's a [devcontainer configuration](https://code.visualstudio.com/docs/remote/containers) which you should be able to use with VS Code or GitHub Codespaces.
+
 ## License
 
 Copyright © 2022 Miikka Koskinen.
