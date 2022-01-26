@@ -33,26 +33,27 @@
   (is (= [1 2 3] (pad [1 2 3] 3 0)))
   (is (= [1 2 3 0 0 0] (pad [1 2 3] 6 0))))
 
-(defn expand-range [[operator version :as range]]
-  (cond
-    (contains? operator-kw->fn operator) [range]
+(defmulti expand-range first)
 
-    (= (keyword "^") operator)
-    (let [[_ upper] (reduce (fn [[bumped? upper] component]
-                              (if (or bumped? (zero? component))
-                                [bumped? (conj upper 0)]
-                                [true (conj upper (inc component))]))
-                            [false []]
-                            version)]
-      [[:>= version], [:< upper]])
+(defmethod expand-range :default [range]
+  [range])
 
-    (= (keyword "~") operator)
-    (let [upper (if (= 1 (count version))
-                  (map inc version)
-                  (into [(first version) (inc (second version))]
-                        (map (constantly 0))
-                        (drop 2 version)))]
-      [[:>= (pad version 3 0)], [:< (pad upper 3 0)]])))
+(defmethod expand-range (keyword "^") [[_ version]]
+  (let [[_ upper] (reduce (fn [[bumped? upper] component]
+                            (if (or bumped? (zero? component))
+                              [bumped? (conj upper 0)]
+                              [true (conj upper (inc component))]))
+                          [false []]
+                          version)]
+    [[:>= version], [:< upper]]))
+
+(defmethod expand-range (keyword "~") [[_ version]]
+  (let [upper (if (= 1 (count version))
+                (map inc version)
+                (into [(first version) (inc (second version))]
+                      (map (constantly 0))
+                      (drop 2 version)))]
+    [[:>= (pad version 3 0)], [:< (pad upper 3 0)]]))
 
 (deftest expand-range-test
   (is (= [[:= [1 2 3]]] (expand-range [:= [1 2 3]])))
