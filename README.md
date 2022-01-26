@@ -23,13 +23,14 @@ For the first release:
 
 - [ ] Support hyphen ranges `1.2.3 - 1.2.4`
 - [ ] Support X ranges `1.2.X`
-- [ ] Support tilde ranges `~1.2.3`
+- [x] Support tilde ranges `~1.2.3`
 - [ ] Support pre-release versions `1.2.3-alpha1`
 - [ ] Set up a CI job for running tests
 - [ ] Support ClojureScript
 
 Possibly later:
 
+- [ ] Deal with version numbers that do not have three main components `1.2`, `1.2.3.4` etc.
 - [ ] Support comparing and/or sorting releases
 
 ## Development
