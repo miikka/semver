@@ -25,7 +25,7 @@ For the first release:
 - [ ] Support X ranges `1.2.X`
 - [x] Support tilde ranges `~1.2.3`
 - [ ] Support pre-release versions `1.2.3-alpha1`
-- [ ] Set up a CI job for running tests
+- [x] Set up a CI job for running tests
 - [ ] Support ClojureScript
 
 Possibly later:
