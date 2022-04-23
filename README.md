@@ -21,6 +21,7 @@ which takes a version string and a semver range string and returns true if the v
 
 For the first release:
 
+- [x] Support multiple ranges `1.2.3 || 4.5.6`
 - [ ] Support hyphen ranges `1.2.3 - 1.2.4`
 - [ ] Support X ranges `1.2.X`
 - [x] Support tilde ranges `~1.2.3`
@@ -35,8 +36,8 @@ Possibly later:
 
 ## Development
 
-* We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit messages.
-* There's a [devcontainer configuration](https://code.visualstudio.com/docs/remote/containers) which you should be able to use with VS Code or GitHub Codespaces.
+- We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit messages.
+- There's a [devcontainer configuration](https://code.visualstudio.com/docs/remote/containers) which you should be able to use with VS Code or GitHub Codespaces.
 
 ## License
 

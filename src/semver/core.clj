@@ -1,7 +1,8 @@
 (ns semver.core
   (:refer-clojure :exclude [satisfies?])
   (:require [clojure.string :as str]
-            [clojure.test :refer [deftest is]]))
+            [clojure.test :refer [deftest is]]
+            [semver.parser :refer [parse-range]]))
 
 (defn parse-version [version]
   (when version
@@ -11,15 +12,6 @@
 (deftest parse-version-test
   (is (= nil (parse-version nil)))
   (is (= [1 0 0] (parse-version "1.0.0"))))
-
-(defn parse-range [range]
-  (let [[_ operator version] (re-matches #"(<|<=|>|>=|=|\^|~)?([0-9.]+)" range)]
-    [(if operator (keyword operator) :=) (parse-version version)]))
-
-(deftest parse-range-test
-  (is (= [:= [1 0 0]] (parse-range "1.0.0")))
-  (is (= [:= [1 0 0]] (parse-range "=1.0.0")))
-  (is (= [:>= [1 0 0]] (parse-range ">=1.0.0"))))
 
 (def operator-kw->fn {:< <, :> >, :<= <=, :>= >=, := =})
 
@@ -74,8 +66,8 @@
   "Returns true if version satisfies range."
   [version range]
   (let [parsed-version (parse-version version)
-        expanded-ranges (expand-range (parse-range range))]
-    (every? (partial satisfies-range? parsed-version) expanded-ranges)))
+        expanded-ranges (map expand-range (parse-range range))]
+    (some #(every? (partial satisfies-range? parsed-version) %) expanded-ranges)))
 
 (deftest satisfies?-test
   (is (satisfies? "1.0.0" "1.0.0"))
@@ -119,7 +111,7 @@
   (is (not (satisfies? "1.2.0" "~1.2.3")))
   (is (not (satisfies? "1.3.0" "~1.2.3")))
   (is (not (satisfies? "2.0.0" "~1.2.3")))
-  
+
   (is (satisfies? "1.2.0" "~1.2"))
   (is (satisfies? "1.2.1" "~1.2"))
   (is (not (satisfies? "1.1.0" "~1.2")))
@@ -131,4 +123,8 @@
   (is (satisfies? "1.2.0" "~1"))
   (is (not (satisfies? "0.1.0" "~1")))
   (is (not (satisfies? "2.0.0" "~1"))))
-  
+
+(deftest satisfies?-or-test
+  (is (satisfies? "1.0.0" "1.0.0 || 2.0.0"))
+  (is (satisfies? "2.0.0" "1.0.0 || 2.0.0"))
+  (is (not (satisfies? "1.0.1" "1.0.0 || 2.0.0"))))
