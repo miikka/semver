@@ -6,7 +6,7 @@ Clojure library for parsing and evaluating [semver](https://github.com/npm/node-
 
 ## Usage
 
-The main entry point is the function `semver.core/satisfies?,
+The main entry point is the function `semver.core/satisfies?`,
 which takes a version string and a semver range string and returns true if the version is included in the range.
 
 ```clojure
