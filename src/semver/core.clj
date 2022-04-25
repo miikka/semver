@@ -15,6 +15,8 @@
 
 (def operator-kw->fn {:< <, :> >, :<= <=, :>= >=, := =})
 
+(def primitive-operators (set (keys operator-kw->fn)))
+
 (defn pad [coll length value]
   (if (>= (count coll) length)
     coll
@@ -47,6 +49,9 @@
                       (drop 2 version)))]
     [[:>= (pad version 3 0)], [:< (pad upper 3 0)]]))
 
+(defmethod expand-range :- [[_ lower upper]]
+  [[:>= lower], [:<= upper]])
+
 (deftest expand-range-test
   (is (= [[:= [1 2 3]]] (expand-range [:= [1 2 3]])))
   (is (= [[:>= [1 2 3]], [:< [2 0 0]]] (expand-range [(keyword "^") [1 2 3]])))
@@ -57,9 +62,12 @@
   (is (= [[:>= [1 0 0]], [:< [2 0 0]]] (expand-range [(keyword "~") [1]])))
   (is (= [[:>= [0 2 3]], [:< [0 3 0]]] (expand-range [(keyword "~") [0 2 3]])))
   (is (= [[:>= [0 2 0]], [:< [0 3 0]]] (expand-range [(keyword "~") [0 2]])))
-  (is (= [[:>= [0 0 0]], [:< [1 0 0]]] (expand-range [(keyword "~") [0]]))))
+  (is (= [[:>= [0 0 0]], [:< [1 0 0]]] (expand-range [(keyword "~") [0]])))
+  (is (= [[:>= [1 2 3]], [:<= [4 5 6]]] (expand-range [:- [1 2 3] [4 5 6]]))))
 
-(defn satisfies-range? [version [operator range-version]]
+(defn satisfies-range?
+  [version [operator range-version]]
+  (assert (contains? primitive-operators operator) (str "operator " (pr-str operator) " is not primitive"))
   ((operator-kw->fn operator) (compare version range-version) 0))
 
 (defn satisfies?
@@ -128,3 +136,10 @@
   (is (satisfies? "1.0.0" "1.0.0 || 2.0.0"))
   (is (satisfies? "2.0.0" "1.0.0 || 2.0.0"))
   (is (not (satisfies? "1.0.1" "1.0.0 || 2.0.0"))))
+
+(deftest satisfies?-hyphen-test
+  (is (satisfies? "1.0.0" "1.0.0 - 2.0.0"))
+  (is (satisfies? "1.1.0" "1.0.0 - 2.0.0"))
+  (is (satisfies? "2.0.0" "1.0.0 - 2.0.0"))
+  (is (not (satisfies? "0.1.0" "1.0.0 - 2.0.0")))
+  (is (not (satisfies? "2.1.0" "1.0.0 - 2.0.0"))))

@@ -22,7 +22,7 @@ which takes a version string and a semver range string and returns true if the v
 For the first release:
 
 - [x] Support multiple ranges `1.2.3 || 4.5.6`
-- [ ] Support hyphen ranges `1.2.3 - 1.2.4`
+- [x] Support hyphen ranges `1.2.3 - 1.2.4`
 - [ ] Support X ranges `1.2.X`
 - [x] Support tilde ranges `~1.2.3`
 - [ ] Support pre-release versions `1.2.3-alpha1`
