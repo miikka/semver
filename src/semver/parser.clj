@@ -22,8 +22,13 @@ build        ::= parts
 parts        ::= part ( '.' part ) *
 part         ::= nr | #'[-0-9A-Za-z]+'"))
 
+(defn parse-xr [s]
+  (if (contains? #{"x" "X" "*"} s)
+    :x
+    (parse-long s)))
+
 (defn process-partial [[_ & xs]]
-  (mapv parse-long xs))
+  (mapv parse-xr xs))
 
 (defn- third [coll] (nth coll 2))
 
@@ -31,7 +36,10 @@ part         ::= nr | #'[-0-9A-Za-z]+'"))
   (if (= op :hyphen)
     (into [:-] (map process-partial) (rest input))
     (case (first xs)
-      :partial [:= (process-partial xs)]
+      :partial (let [p (process-partial xs)]
+                 (if (some #{:x} p)
+                   [:x p]
+                   [:= p]))
       :tilde [(keyword "~") (process-partial (second xs))]
       :caret [(keyword "^") (process-partial (second xs))]
       :primitive [(keyword (second xs)) (process-partial (third xs))])))
@@ -45,4 +53,6 @@ part         ::= nr | #'[-0-9A-Za-z]+'"))
   (is (= [[:>= [1 0 0]]] (parse-range ">=1.0.0")))
   (is (= [[(keyword "~") [1 0 0]]] (parse-range "~1.0.0")))
   (is (= [[:= [1 0 0]], [:= [2 0 0]]] (parse-range "1.0.0 || 2.0.0")))
-  (is (= [[:- [1 0 0] [2 0 0]]] (parse-range "1.0.0 - 2.0.0"))))
+  (is (= [[:- [1 0 0] [2 0 0]]] (parse-range "1.0.0 - 2.0.0")))
+  (is (= [[:x [1 0 :x]]] (parse-range "1.0.x")))
+  (is (= [[:x [1 :x 0]]] (parse-range "1.*.0"))))

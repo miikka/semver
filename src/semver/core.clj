@@ -52,6 +52,11 @@
 (defmethod expand-range :- [[_ lower upper]]
   [[:>= lower], [:<= upper]])
 
+(defmethod expand-range :x [[_ version]]
+  (when-let [lower (not-empty (into [] (take-while (complement #{:x}) version)))]
+    (let [upper (update lower (dec (count lower)) inc)]
+      [[:>= (pad lower 3 0)] [:< (pad upper 3 0)]])))
+
 (deftest expand-range-test
   (is (= [[:= [1 2 3]]] (expand-range [:= [1 2 3]])))
   (is (= [[:>= [1 2 3]], [:< [2 0 0]]] (expand-range [(keyword "^") [1 2 3]])))
@@ -63,7 +68,10 @@
   (is (= [[:>= [0 2 3]], [:< [0 3 0]]] (expand-range [(keyword "~") [0 2 3]])))
   (is (= [[:>= [0 2 0]], [:< [0 3 0]]] (expand-range [(keyword "~") [0 2]])))
   (is (= [[:>= [0 0 0]], [:< [1 0 0]]] (expand-range [(keyword "~") [0]])))
-  (is (= [[:>= [1 2 3]], [:<= [4 5 6]]] (expand-range [:- [1 2 3] [4 5 6]]))))
+  (is (= [[:>= [1 2 3]], [:<= [4 5 6]]] (expand-range [:- [1 2 3] [4 5 6]])))
+  (is (= nil (expand-range [:x [:x]])))
+  (is (= [[:>= [1 0 0]], [:< [2 0 0]]] (expand-range [:x [1 :x]])))
+  (is (= [[:>= [1 2 0]], [:< [1 3 0]]] (expand-range [:x [1 2 :x]]))))
 
 (defn satisfies-range?
   [version [operator range-version]]
@@ -143,3 +151,16 @@
   (is (satisfies? "2.0.0" "1.0.0 - 2.0.0"))
   (is (not (satisfies? "0.1.0" "1.0.0 - 2.0.0")))
   (is (not (satisfies? "2.1.0" "1.0.0 - 2.0.0"))))
+
+(deftest satisfies?-x-test
+  (is (satisfies? "1.0.0" "*"))
+  (is (satisfies? "1.0.0" "1.x"))
+  (is (satisfies? "1.1.0" "1.x"))
+  (is (satisfies? "1.0.1" "1.x"))
+  (is (not (satisfies? "0.1.0" "1.x")))
+  (is (not (satisfies? "2.0.0" "1.x")))
+  (is (satisfies? "1.0.0" "1.0.x"))
+  (is (satisfies? "1.0.1" "1.0.x"))
+  (is (not (satisfies? "1.1.0" "1.0.x")))
+  (is (not (satisfies? "0.1.0" "1.0.x")))
+  (is (not (satisfies? "2.0.0" "1.0.x"))))
